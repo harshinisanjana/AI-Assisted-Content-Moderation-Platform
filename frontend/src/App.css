@@ -1,0 +1,40 @@
+/* ═══════════════════════════════════════════════════════════════
+   Obsidian Analytics — Animations & Toast System
+   (Layout handled entirely by Tailwind classes in JSX)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Toast slide-in / slide-out */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(40px) scale(0.95); }
+}
+
+.toast-animate {
+  animation: toastIn 0.35s ease-out, toastOut 0.4s ease-in 3.5s forwards;
+}
+
+/* Fade-in for list items */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fadeUp 0.3s ease-out;
+}
+
+/* Pulse for reconnecting indicator */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+.pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Chart container aspect ratio helper */
+.chart-wrapper { position: relative; }
+.chart-wrapper canvas { max-height: 100% !important; }
