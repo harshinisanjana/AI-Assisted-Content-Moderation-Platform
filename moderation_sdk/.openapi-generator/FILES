@@ -1,7 +1,6 @@
 .github/workflows/python.yml
 .gitignore
 .gitlab-ci.yml
-.openapi-generator-ignore
 .travis.yml
 README.md
 docs/HTTPValidationError.md
@@ -11,7 +10,11 @@ docs/PostCreate.md
 docs/PostRead.md
 docs/PostStatus.md
 docs/PostsApi.md
+docs/ReasonCount.md
 docs/ReviewResponse.md
+docs/StatsResponse.md
+docs/StatusCount.md
+docs/TimelineEntry.md
 docs/ValidationError.md
 git_push.sh
 moderation_sdk/__init__.py
@@ -28,7 +31,11 @@ moderation_sdk/models/location_inner.py
 moderation_sdk/models/post_create.py
 moderation_sdk/models/post_read.py
 moderation_sdk/models/post_status.py
+moderation_sdk/models/reason_count.py
 moderation_sdk/models/review_response.py
+moderation_sdk/models/stats_response.py
+moderation_sdk/models/status_count.py
+moderation_sdk/models/timeline_entry.py
 moderation_sdk/models/validation_error.py
 moderation_sdk/py.typed
 moderation_sdk/rest.py
@@ -38,13 +45,4 @@ setup.cfg
 setup.py
 test-requirements.txt
 test/__init__.py
-test/test_health_api.py
-test/test_http_validation_error.py
-test/test_location_inner.py
-test/test_post_create.py
-test/test_post_read.py
-test/test_post_status.py
-test/test_posts_api.py
-test/test_review_response.py
-test/test_validation_error.py
 tox.ini

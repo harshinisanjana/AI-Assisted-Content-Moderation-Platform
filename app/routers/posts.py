@@ -16,6 +16,7 @@ def _to_post_read(post: models.Post) -> schemas.PostRead:
         status=post.status,
         flagged_reasons=crud.deserialize_reasons(post.flagged_reasons),
         created_at=post.created_at,
+        published_at=post.published_at,
     )
 
 
@@ -23,7 +24,14 @@ def _to_post_read(post: models.Post) -> schemas.PostRead:
 async def create_post(payload: schemas.PostCreate, db: Session = Depends(get_db)) -> schemas.PostRead:
     post = crud.create_post(db, title=payload.title, content=payload.content)
     result = _to_post_read(post)
-    await manager.broadcast("post_created", {"id": post.id, "title": post.title, "status": post.status})
+    await manager.broadcast(
+        "post_created",
+        {
+            "id": post.id,
+            "title": post.title,
+            "status": post.status,
+        },
+    )
     return result
 
 
@@ -55,11 +63,15 @@ async def submit_post_for_review(post_id: int, db: Session = Depends(get_db)) ->
 
 @router.get("/", response_model=list[schemas.PostRead])
 def list_posts(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, le=100),
     status_filter: schemas.PostStatus | None = Query(default=None, alias="status"),
     db: Session = Depends(get_db),
 ) -> list[schemas.PostRead]:
     posts = crud.list_posts(
         db,
+        skip=skip,
+        limit=limit,
         status_filter=status_filter.value if status_filter else None,
     )
     return [_to_post_read(post) for post in posts]

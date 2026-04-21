@@ -18,7 +18,8 @@ class Post(Base):
     status = Column(Text, nullable=False, server_default="draft", default="draft")
     flagged_reasons = Column(Text, nullable=True)
     created_at = Column(
-        DateTime(timezone=False),
+        DateTime(timezone=True),
         nullable=False,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
     )
+    published_at = Column(DateTime(timezone=True), nullable=True)

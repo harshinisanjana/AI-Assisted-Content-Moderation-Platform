@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 def create_draft(
     client: TestClient,
     title: str = "Draft Post",
-    content: str = "This is a neutral and polite draft post with enough length to be reviewed safely.",
+    content: str = "This is a neutral and polite post with enough length to be reviewed safely.",
 ) -> dict:
     response = client.post(
         "/posts/",
@@ -17,8 +17,11 @@ def create_draft(
     return response.json()
 
 
-def test_create_and_get_post(client: TestClient) -> None:
+def test_create_and_get_post_starts_as_draft(client: TestClient) -> None:
     created = create_draft(client)
+
+    assert created["status"] == "draft"
+    assert created["flagged_reasons"] == []
 
     response = client.get(f"/posts/{created['id']}")
     assert response.status_code == 200
@@ -29,23 +32,7 @@ def test_create_and_get_post(client: TestClient) -> None:
     assert payload["flagged_reasons"] == []
 
 
-def test_submit_polite_post_is_approved(client: TestClient) -> None:
-    approved_content = (
-        "Thank you for reading this update. "
-        "The team completed the iteration and documented outcomes clearly. "
-        "We appreciate the thoughtful feedback from everyone involved."
-    )
-    created = create_draft(client, content=approved_content)
-
-    response = client.post(f"/posts/{created['id']}/submit/")
-    assert response.status_code == 200
-
-    payload = response.json()
-    assert payload["status"] == "approved"
-    assert payload["flagged_reasons"] == []
-
-
-def test_short_all_caps_post_is_flagged(client: TestClient) -> None:
+def test_short_all_caps_post_is_flagged_on_submit(client: TestClient) -> None:
     created = create_draft(client, content="THIS IS UNACCEPTABLE!!!")
 
     response = client.post(f"/posts/{created['id']}/submit/")
@@ -58,7 +45,7 @@ def test_short_all_caps_post_is_flagged(client: TestClient) -> None:
     assert "all caps" in reasons
 
 
-def test_profanity_is_flagged(client: TestClient) -> None:
+def test_profanity_is_flagged_on_submit(client: TestClient) -> None:
     profanity_content = (
         "I appreciate debate, but calling people idiot during discussion crosses the line "
         "and this sentence is intentionally long enough for moderation length checks."
@@ -75,8 +62,26 @@ def test_profanity_is_flagged(client: TestClient) -> None:
     assert "idiot" in reasons
 
 
+def test_submit_polite_post_is_approved(client: TestClient) -> None:
+    approved_content = (
+        "Thank you for reading this update. "
+        "The team completed the iteration and documented outcomes clearly. "
+        "We appreciate the thoughtful feedback from everyone involved."
+    )
+    created = create_draft(client, content=approved_content)
+    assert created["status"] == "draft"
+
+    response = client.post(f"/posts/{created['id']}/submit/")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["status"] == "approved"
+    assert payload["flagged_reasons"] == []
+
+
 def test_publish_requires_approved_status(client: TestClient) -> None:
     created = create_draft(client)
+    assert created["status"] == "draft"
 
     response = client.patch(f"/posts/{created['id']}/publish/")
     assert response.status_code == 400
@@ -89,6 +94,7 @@ def test_publish_after_approval_and_lock_content(client: TestClient) -> None:
         "with practical details and enough context to satisfy the review requirements."
     )
     created = create_draft(client, content=approved_content)
+    assert created["status"] == "draft"
 
     submit_response = client.post(f"/posts/{created['id']}/submit/")
     assert submit_response.status_code == 200
@@ -97,6 +103,7 @@ def test_publish_after_approval_and_lock_content(client: TestClient) -> None:
     publish_response = client.patch(f"/posts/{created['id']}/publish/")
     assert publish_response.status_code == 200
     assert publish_response.json()["status"] == "published"
+    assert publish_response.json()["published_at"] is not None
 
     locked_submit = client.post(f"/posts/{created['id']}/submit/")
     assert locked_submit.status_code == 409
@@ -104,7 +111,7 @@ def test_publish_after_approval_and_lock_content(client: TestClient) -> None:
 
 
 def test_list_posts_with_status_filter(client: TestClient) -> None:
-    first = create_draft(
+    approved_candidate = create_draft(
         client,
         title="Approved Candidate",
         content=(
@@ -112,10 +119,24 @@ def test_list_posts_with_status_filter(client: TestClient) -> None:
             "for approval on submission."
         ),
     )
-    second = create_draft(client, title="Flagged Candidate", content="BAD WORDS!!!")
+    flagged_candidate = create_draft(client, title="Flagged Candidate", content="BAD WORDS!!!")
+    draft_candidate = create_draft(
+        client,
+        title="Still Draft",
+        content="This one stays as draft because it has not been submitted for review yet.",
+    )
 
-    client.post(f"/posts/{first['id']}/submit/")
-    client.post(f"/posts/{second['id']}/submit/")
+    assert approved_candidate["status"] == "draft"
+    assert flagged_candidate["status"] == "draft"
+    assert draft_candidate["status"] == "draft"
+
+    approved_submit = client.post(f"/posts/{approved_candidate['id']}/submit/")
+    assert approved_submit.status_code == 200
+    assert approved_submit.json()["status"] == "approved"
+
+    flagged_submit = client.post(f"/posts/{flagged_candidate['id']}/submit/")
+    assert flagged_submit.status_code == 200
+    assert flagged_submit.json()["status"] == "flagged"
 
     approved_response = client.get("/posts/", params={"status": "approved"})
     assert approved_response.status_code == 200
@@ -129,6 +150,12 @@ def test_list_posts_with_status_filter(client: TestClient) -> None:
     assert len(flagged_posts) == 1
     assert flagged_posts[0]["title"] == "Flagged Candidate"
 
+    draft_response = client.get("/posts/", params={"status": "draft"})
+    assert draft_response.status_code == 200
+    draft_posts = draft_response.json()
+    assert len(draft_posts) == 1
+    assert draft_posts[0]["title"] == "Still Draft"
+
 
 def test_stats_endpoint(client: TestClient) -> None:
     """GET /posts/stats returns analytics data."""
@@ -136,19 +163,22 @@ def test_stats_endpoint(client: TestClient) -> None:
         "A well-written polite post that meets the minimum length requirement "
         "and should pass moderation without any issues at all."
     )
-    create_draft(client, title="Post A", content=approved_content)
-    create_draft(client, title="Post B", content="TOO SHORT!!!")
+    approved_draft = create_draft(client, title="Post A", content=approved_content)
+    flagged_draft = create_draft(client, title="Post B", content="TOO SHORT!!!")
+    create_draft(
+        client,
+        title="Post C",
+        content="This remains a draft post with enough neutral content to avoid immediate issues.",
+    )
 
-    # Submit both
-    posts = client.get("/posts/").json()
-    for post in posts:
-        client.post(f"/posts/{post['id']}/submit/")
+    client.post(f"/posts/{approved_draft['id']}/submit/")
+    client.post(f"/posts/{flagged_draft['id']}/submit/")
 
     response = client.get("/posts/stats")
     assert response.status_code == 200
 
     stats = response.json()
-    assert stats["total_posts"] == 2
+    assert stats["total_posts"] == 3
     assert len(stats["status_distribution"]) == 4
     assert len(stats["timeline"]) == 30
     assert isinstance(stats["approval_rate"], float)

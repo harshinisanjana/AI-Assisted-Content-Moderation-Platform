@@ -87,6 +87,7 @@ Class | Method | HTTP request | Description
 *HealthApi* | [**health_check_health_get**](docs/HealthApi.md#health_check_health_get) | **GET** /health | Health Check
 *PostsApi* | [**create_post_posts_post**](docs/PostsApi.md#create_post_posts_post) | **POST** /posts/ | Create Post
 *PostsApi* | [**get_post_posts_post_id_get**](docs/PostsApi.md#get_post_posts_post_id_get) | **GET** /posts/{post_id} | Get Post
+*PostsApi* | [**get_post_stats_posts_stats_get**](docs/PostsApi.md#get_post_stats_posts_stats_get) | **GET** /posts/stats | Get Post Stats
 *PostsApi* | [**list_posts_posts_get**](docs/PostsApi.md#list_posts_posts_get) | **GET** /posts/ | List Posts
 *PostsApi* | [**publish_post_posts_post_id_publish_patch**](docs/PostsApi.md#publish_post_posts_post_id_publish_patch) | **PATCH** /posts/{post_id}/publish/ | Publish Post
 *PostsApi* | [**submit_post_for_review_posts_post_id_submit_post**](docs/PostsApi.md#submit_post_for_review_posts_post_id_submit_post) | **POST** /posts/{post_id}/submit/ | Submit Post For Review
@@ -99,7 +100,11 @@ Class | Method | HTTP request | Description
  - [PostCreate](docs/PostCreate.md)
  - [PostRead](docs/PostRead.md)
  - [PostStatus](docs/PostStatus.md)
+ - [ReasonCount](docs/ReasonCount.md)
  - [ReviewResponse](docs/ReviewResponse.md)
+ - [StatsResponse](docs/StatsResponse.md)
+ - [StatusCount](docs/StatusCount.md)
+ - [TimelineEntry](docs/TimelineEntry.md)
  - [ValidationError](docs/ValidationError.md)
 
 

@@ -1,6 +1,6 @@
 # AI-Assisted Content Moderation & Publishing Platform
 
-A full-stack content publishing platform where users create short blog posts that are automatically reviewed by an AI moderation service before publishing.
+A full-stack content publishing platform where users create short blog posts as drafts, submit them for AI moderation review, and publish approved content.
 
 ## Tech Stack
 
@@ -32,7 +32,7 @@ A full-stack content publishing platform where users create short blog posts tha
 ├── frontend/
 │   └── src/
 │       ├── api.js           # Axios API client
-│       ├── App.jsx          # Main layout + state management
+│       ├── App.jsx          # Main layout + route-based pages
 │       ├── App.css          # Animations (toast, fade)
 │       ├── index.css        # Scrollbar styling
 │       ├── main.jsx         # React entry point
@@ -78,7 +78,7 @@ Opens two terminal windows:
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/posts/` | Create a new draft post |
-| `POST` | `/posts/{id}/submit/` | Submit for AI moderation review |
+| `POST` | `/posts/{id}/submit/` | Submit a draft (or flagged post) for AI moderation review |
 | `GET` | `/posts/` | List posts (optional `?status=` filter) |
 | `GET` | `/posts/{id}` | Get a specific post |
 | `PATCH` | `/posts/{id}/publish/` | Publish an approved post |
@@ -90,7 +90,7 @@ Opens two terminal windows:
 
 ```
 draft → submit → approved → publish → published
-                → flagged (resubmit allowed)
+               → flagged (resubmit allowed)
 ```
 
 ## Moderation Rules
@@ -116,14 +116,7 @@ pytest -v
 ```
 
 ```
-test_create_and_get_post           PASSED
-test_submit_polite_post_is_approved PASSED
-test_short_all_caps_post_is_flagged PASSED
-test_profanity_is_flagged          PASSED
-test_publish_requires_approved     PASSED
-test_publish_after_approval_lock   PASSED
-test_list_posts_with_status_filter PASSED
-test_stats_endpoint                PASSED
+8 passed
 ```
 
 ## Generate SDK

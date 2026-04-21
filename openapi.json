@@ -6,6 +6,28 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/posts/stats": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Get Post Stats",
+        "description": "Return aggregated statistics for the analytics dashboard.",
+        "operationId": "get_post_stats_posts_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/posts/": {
       "post": {
         "tags": [
@@ -53,6 +75,28 @@
         "summary": "List Posts",
         "operationId": "list_posts_posts__get",
         "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
           {
             "name": "status",
             "in": "query",
@@ -314,6 +358,18 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
           }
         },
         "type": "object",
@@ -335,6 +391,24 @@
           "published"
         ],
         "title": "PostStatus"
+      },
+      "ReasonCount": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason",
+          "count"
+        ],
+        "title": "ReasonCount"
       },
       "ReviewResponse": {
         "properties": {
@@ -359,6 +433,89 @@
           "status"
         ],
         "title": "ReviewResponse"
+      },
+      "StatsResponse": {
+        "properties": {
+          "status_distribution": {
+            "items": {
+              "$ref": "#/components/schemas/StatusCount"
+            },
+            "type": "array",
+            "title": "Status Distribution"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineEntry"
+            },
+            "type": "array",
+            "title": "Timeline"
+          },
+          "top_flagged_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonCount"
+            },
+            "type": "array",
+            "title": "Top Flagged Reasons"
+          },
+          "total_posts": {
+            "type": "integer",
+            "title": "Total Posts"
+          },
+          "approval_rate": {
+            "type": "number",
+            "title": "Approval Rate"
+          },
+          "flag_rate": {
+            "type": "number",
+            "title": "Flag Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status_distribution",
+          "timeline",
+          "top_flagged_reasons",
+          "total_posts",
+          "approval_rate",
+          "flag_rate"
+        ],
+        "title": "StatsResponse"
+      },
+      "StatusCount": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "count"
+        ],
+        "title": "StatusCount"
+      },
+      "TimelineEntry": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "count"
+        ],
+        "title": "TimelineEntry"
       },
       "ValidationError": {
         "properties": {

@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**create_post_posts_post**](PostsApi.md#create_post_posts_post) | **POST** /posts/ | Create Post
 [**get_post_posts_post_id_get**](PostsApi.md#get_post_posts_post_id_get) | **GET** /posts/{post_id} | Get Post
+[**get_post_stats_posts_stats_get**](PostsApi.md#get_post_stats_posts_stats_get) | **GET** /posts/stats | Get Post Stats
 [**list_posts_posts_get**](PostsApi.md#list_posts_posts_get) | **GET** /posts/ | List Posts
 [**publish_post_posts_post_id_publish_patch**](PostsApi.md#publish_post_posts_post_id_publish_patch) | **PATCH** /posts/{post_id}/publish/ | Publish Post
 [**submit_post_for_review_posts_post_id_submit_post**](PostsApi.md#submit_post_for_review_posts_post_id_submit_post) | **POST** /posts/{post_id}/submit/ | Submit Post For Review
@@ -146,8 +147,72 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_post_stats_posts_stats_get**
+> StatsResponse get_post_stats_posts_stats_get()
+
+Get Post Stats
+
+Return aggregated statistics for the analytics dashboard.
+
+### Example
+
+
+```python
+import moderation_sdk
+from moderation_sdk.models.stats_response import StatsResponse
+from moderation_sdk.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = moderation_sdk.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with moderation_sdk.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = moderation_sdk.PostsApi(api_client)
+
+    try:
+        # Get Post Stats
+        api_response = api_instance.get_post_stats_posts_stats_get()
+        print("The response of PostsApi->get_post_stats_posts_stats_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PostsApi->get_post_stats_posts_stats_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**StatsResponse**](StatsResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **list_posts_posts_get**
-> List[PostRead] list_posts_posts_get(status=status)
+> List[PostRead] list_posts_posts_get(skip=skip, limit=limit, status=status)
 
 List Posts
 
@@ -171,11 +236,13 @@ configuration = moderation_sdk.Configuration(
 with moderation_sdk.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = moderation_sdk.PostsApi(api_client)
+    skip = 0 # int |  (optional) (default to 0)
+    limit = 20 # int |  (optional) (default to 20)
     status = moderation_sdk.PostStatus() # PostStatus |  (optional)
 
     try:
         # List Posts
-        api_response = api_instance.list_posts_posts_get(status=status)
+        api_response = api_instance.list_posts_posts_get(skip=skip, limit=limit, status=status)
         print("The response of PostsApi->list_posts_posts_get:\n")
         pprint(api_response)
     except Exception as e:
@@ -189,6 +256,8 @@ with moderation_sdk.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **skip** | **int**|  | [optional] [default to 0]
+ **limit** | **int**|  | [optional] [default to 20]
  **status** | [**PostStatus**](.md)|  | [optional] 
 
 ### Return type

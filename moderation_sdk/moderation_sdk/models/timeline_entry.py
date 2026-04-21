@@ -17,26 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from moderation_sdk.models.post_status import PostStatus
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PostRead(BaseModel):
+class TimelineEntry(BaseModel):
     """
-    PostRead
+    TimelineEntry
     """ # noqa: E501
-    id: StrictInt
-    title: StrictStr
-    content: StrictStr
-    status: PostStatus
-    flagged_reasons: Optional[List[StrictStr]] = None
-    created_at: datetime
-    published_at: Optional[datetime] = None
-    __properties: ClassVar[List[str]] = ["id", "title", "content", "status", "flagged_reasons", "created_at", "published_at"]
+    var_date: StrictStr = Field(alias="date")
+    count: StrictInt
+    __properties: ClassVar[List[str]] = ["date", "count"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -56,7 +49,7 @@ class PostRead(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PostRead from a JSON string"""
+        """Create an instance of TimelineEntry from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -77,16 +70,11 @@ class PostRead(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if published_at (nullable) is None
-        # and model_fields_set contains the field
-        if self.published_at is None and "published_at" in self.model_fields_set:
-            _dict['published_at'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PostRead from a dict"""
+        """Create an instance of TimelineEntry from a dict"""
         if obj is None:
             return None
 
@@ -94,13 +82,8 @@ class PostRead(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "title": obj.get("title"),
-            "content": obj.get("content"),
-            "status": obj.get("status"),
-            "flagged_reasons": obj.get("flagged_reasons"),
-            "created_at": obj.get("created_at"),
-            "published_at": obj.get("published_at")
+            "date": obj.get("date"),
+            "count": obj.get("count")
         })
         return _obj
 

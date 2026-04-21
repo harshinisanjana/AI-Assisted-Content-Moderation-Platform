@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
@@ -25,7 +26,13 @@ def deserialize_reasons(payload: str | None) -> list[str]:
 
 
 def create_post(db: Session, title: str, content: str) -> Post:
-    post = Post(title=title, content=content, status="draft", flagged_reasons=None)
+    post = Post(
+        title=title,
+        content=content,
+        status="draft",
+        flagged_reasons=None,
+        published_at=None,
+    )
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -36,11 +43,11 @@ def get_post_by_id(db: Session, post_id: int) -> Post | None:
     return db.query(Post).filter(Post.id == post_id).first()
 
 
-def list_posts(db: Session, status_filter: str | None = None) -> list[Post]:
+def list_posts(db: Session, skip: int = 0, limit: int = 100, status_filter: str | None = None) -> list[Post]:
     query = db.query(Post)
     if status_filter:
         query = query.filter(Post.status == status_filter)
-    return query.order_by(Post.created_at.desc(), Post.id.desc()).all()
+    return query.order_by(Post.created_at.desc(), Post.id.desc()).offset(skip).limit(limit).all()
 
 
 def submit_post_for_review(db: Session, post: Post) -> tuple[Post, list[str]]:
@@ -55,6 +62,7 @@ def submit_post_for_review(db: Session, post: Post) -> tuple[Post, list[str]]:
 
 def publish_post(db: Session, post: Post) -> Post:
     post.status = "published"
+    post.published_at = datetime.now(timezone.utc)
     db.add(post)
     db.commit()
     db.refresh(post)

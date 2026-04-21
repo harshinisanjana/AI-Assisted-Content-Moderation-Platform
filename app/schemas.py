@@ -23,6 +23,7 @@ class PostRead(BaseModel):
     status: PostStatus
     flagged_reasons: list[str] = Field(default_factory=list)
     created_at: datetime
+    published_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

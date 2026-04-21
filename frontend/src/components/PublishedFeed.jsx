@@ -1,5 +1,31 @@
-export default function PublishedFeed({ posts }) {
+export default function PublishedFeed({ posts, onLoadMore, hasMore }) {
   const published = posts.filter((p) => p.status === 'published')
+
+  const parseBackendTimestamp = (value) => {
+    if (!value || typeof value !== 'string') return null
+    const hasTimezone = /([zZ]|[+-]\d{2}:\d{2})$/.test(value)
+    const parsed = new Date(hasTimezone ? value : `${value}Z`)
+    if (Number.isNaN(parsed.getTime())) return null
+    return parsed
+  }
+
+  const formatDate = (value) => {
+    const parsed = parseBackendTimestamp(value)
+    if (!parsed) return 'Unknown date'
+    return parsed.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
+  const formatDateTime = (value) => {
+    const parsed = parseBackendTimestamp(value)
+    if (!parsed) return 'Unknown time'
+    return parsed.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -17,17 +43,19 @@ export default function PublishedFeed({ posts }) {
       </div>
 
       {/* Articles */}
-      {published.map((post) => (
-        <article
-          key={post.id}
-          className="fade-up bg-surface-container-high rounded-xl p-8 ring-1 ring-white/5 shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:ring-primary/10 transition-all duration-300"
-        >
+      {published.map((post) => {
+        const publishedOn = post.published_at || post.created_at
+        return (
+          <article
+            key={post.id}
+            className="fade-up bg-surface-container-high rounded-xl p-8 ring-1 ring-white/5 shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:ring-primary/10 transition-all duration-300"
+          >
           <header className="mb-6">
             <h3 className="font-headline text-2xl font-bold text-on-surface leading-tight">{post.title}</h3>
             <div className="flex items-center gap-3 mt-3 text-outline text-xs font-body">
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                {new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                {formatDate(publishedOn)}
               </span>
               <span className="text-white/10">|</span>
               <span className="flex items-center gap-1 text-primary/60">
@@ -45,15 +73,27 @@ export default function PublishedFeed({ posts }) {
 
           <footer className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-outline/50 text-xs font-body">
             <span className="material-symbols-outlined text-[14px]">lock</span>
-            Read-only · {new Date(post.created_at).toLocaleTimeString()}
+            Read-only · Published {formatDateTime(publishedOn)}
           </footer>
-        </article>
-      ))}
+          </article>
+        )
+      })}
 
       {published.length === 0 && (
         <div className="text-center py-16">
           <span className="material-symbols-outlined text-[64px] text-outline/20">article</span>
           <p className="text-outline text-sm mt-4">Submit your first post to get started.</p>
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="pt-8 text-center pb-8">
+          <button
+            onClick={onLoadMore}
+            className="text-xs font-label uppercase tracking-wider text-primary ring-1 ring-primary/30 px-6 py-2 rounded-full hover:bg-primary/10 transition-colors"
+          >
+            Load More Posts ▼
+          </button>
         </div>
       )}
     </div>

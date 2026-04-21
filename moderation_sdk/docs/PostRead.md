@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **status** | [**PostStatus**](PostStatus.md) |  | 
 **flagged_reasons** | **List[str]** |  | [optional] 
 **created_at** | **datetime** |  | 
+**published_at** | **datetime** |  | [optional] 
 
 ## Example
 

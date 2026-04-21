@@ -1,24 +1,22 @@
+import os
 import re
 
-MIN_CONTENT_LENGTH = 50
-MAX_CONTENT_LENGTH = 2000
+MIN_CONTENT_LENGTH = int(os.getenv("MIN_CONTENT_LENGTH", "50"))
+MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", "2000"))
 
-BANNED_WORDS = {
-    "damn",
-    "dumb",
-    "idiot",
-    "moron",
-    "stupid",
-    "shit",
-}
+def _parse_env_list(key: str, default: str) -> set[str]:
+    raw = os.getenv(key, default)
+    return {w.strip().lower() for w in raw.split(",") if w.strip()}
 
-AGGRESSIVE_KEYWORDS = {
-    "destroy",
-    "hate",
-    "kill",
-    "loser",
-    "pathetic",
-}
+BANNED_WORDS = _parse_env_list(
+    "BANNED_WORDS",
+    "damn, dumb, idiot, moron, stupid, shit"
+)
+
+AGGRESSIVE_KEYWORDS = _parse_env_list(
+    "AGGRESSIVE_KEYWORDS",
+    "destroy, hate, kill, loser, pathetic"
+)
 
 
 def _extract_lowercase_words(content: str) -> list[str]:

@@ -13,8 +13,11 @@ export default function PostList({
   statusFilter,
   onFilterChange,
   onView,
+  onSubmitForReview,
   onPublish,
   submitting,
+  onLoadMore,
+  hasMore,
 }) {
   return (
     <div className="bg-surface-container-high rounded-xl p-8 flex flex-col gap-6 shadow-[0_32px_64px_rgba(0,0,0,0.5)] ring-1 ring-white/5" id="posts-panel">
@@ -57,11 +60,21 @@ export default function PostList({
                 type="button"
                 onClick={() => onView(post.id)}
                 disabled={submitting}
-                className="text-zinc-500 hover:text-on-surface transition-colors p-1.5 rounded-lg hover:bg-white/5"
+                className="px-3 py-1 rounded-lg text-xs font-label font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-on-surface transition-all"
                 title="View details"
               >
-                <span className="material-symbols-outlined text-[18px]">visibility</span>
+                View
               </button>
+              {(post.status === 'draft' || post.status === 'flagged') && (
+                <button
+                  type="button"
+                  onClick={() => onSubmitForReview(post.id)}
+                  disabled={submitting}
+                  className="px-3 py-1 rounded-lg text-xs font-label font-semibold text-on-primary bg-gradient-to-r from-tertiary/80 to-tertiary hover:shadow-[0_2px_12px_rgba(255,184,105,0.3)] transition-all"
+                >
+                  {post.status === 'draft' ? 'Submit' : 'Re-submit'}
+                </button>
+              )}
               {post.status === 'approved' && (
                 <button
                   type="button"
@@ -76,6 +89,18 @@ export default function PostList({
           </li>
         ))}
       </ul>
+      
+      {hasMore && (
+        <div className="pt-2 text-center">
+          <button
+            onClick={onLoadMore}
+            disabled={submitting || loading}
+            className="text-xs font-label uppercase tracking-wider text-primary hover:text-primary-fixed transition-colors"
+          >
+            {loading ? 'Loading...' : 'Load More ▼'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

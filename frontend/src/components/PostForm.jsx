@@ -33,8 +33,8 @@ export default function PostForm({ onSubmitPost, submitting }) {
     <div className="bg-surface-container-high rounded-xl p-8 flex flex-col gap-6 shadow-[0_32px_64px_rgba(0,0,0,0.5)] ring-1 ring-white/5" id="submit-post-panel">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-headline text-xl font-bold text-on-surface">Submit New Post</h3>
-          <p className="font-body text-sm text-on-surface-variant mt-1">Your post will be automatically reviewed by AI moderation.</p>
+          <h3 className="font-headline text-xl font-bold text-on-surface">Create Draft</h3>
+          <p className="font-body text-sm text-on-surface-variant mt-1">Create first, then submit from the queue for AI review.</p>
         </div>
         <span className="material-symbols-outlined text-primary/60">rate_review</span>
       </div>
@@ -86,11 +86,11 @@ export default function PostForm({ onSubmitPost, submitting }) {
           disabled={submitting}
           className="w-full py-3 rounded-lg font-body text-sm font-semibold text-on-primary bg-gradient-to-r from-primary-container to-primary hover:shadow-[0_4px_20px_rgba(208,188,255,0.3)] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {submitting ? '⏳ Submitting & Reviewing…' : '🚀 Submit Post'}
+          {submitting ? 'Creating Draft…' : 'Create Draft'}
         </button>
 
         <p className="text-outline/60 text-xs font-body text-center">
-          Posts are checked for banned words, content length (50–2000 chars), ALL-CAPS, and aggressive tone.
+          After creation, drafts can be submitted for checks on banned words, content length (50–2000 chars), ALL-CAPS, and aggressive tone.
         </p>
       </form>
     </div>

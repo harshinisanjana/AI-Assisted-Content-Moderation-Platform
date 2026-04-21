@@ -18,6 +18,10 @@ from moderation_sdk.models.location_inner import LocationInner
 from moderation_sdk.models.post_create import PostCreate
 from moderation_sdk.models.post_read import PostRead
 from moderation_sdk.models.post_status import PostStatus
+from moderation_sdk.models.reason_count import ReasonCount
 from moderation_sdk.models.review_response import ReviewResponse
+from moderation_sdk.models.stats_response import StatsResponse
+from moderation_sdk.models.status_count import StatusCount
+from moderation_sdk.models.timeline_entry import TimelineEntry
 from moderation_sdk.models.validation_error import ValidationError
 

@@ -24,6 +24,8 @@ export async function createDraftPost(payload) {
   }
 }
 
+export const createPost = createDraftPost
+
 export async function submitPostForReview(postId) {
   try {
     const response = await api.post(`/posts/${postId}/submit/`)
@@ -33,9 +35,12 @@ export async function submitPostForReview(postId) {
   }
 }
 
-export async function listPosts(status = 'all') {
+export async function listPosts(status = 'all', skip = 0, limit = 20) {
   try {
-    const params = status === 'all' ? undefined : { status }
+    const params = { skip, limit }
+    if (status !== 'all') {
+      params.status = status
+    }
     const response = await api.get('/posts/', { params })
     return response.data
   } catch (error) {
