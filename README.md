@@ -15,7 +15,7 @@ Full-stack assessment project for drafting short posts, submitting them to moder
 
 ### Video Walkthrough
 
-- Full demo video: (https://example.com)
+- Full demo video: (https://drive.google.com/file/d/1bjxBeViPIXtv1pFP3FYOP-l18TcQjjEE/view?usp=sharing)
 
 ### Screenshots
 
