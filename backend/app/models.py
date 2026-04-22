@@ -1,6 +1,6 @@
 from sqlalchemy import CheckConstraint, Column, DateTime, Integer, Text, func
 
-from app.database import Base
+from backend.app.database import Base
 
 
 class Post(Base):

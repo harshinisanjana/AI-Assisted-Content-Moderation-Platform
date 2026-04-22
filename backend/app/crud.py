@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
-from app.moderation import moderate_content
-from app.models import Post
+from backend.app.moderation import moderate_content
+from backend.app.models import Post
 
 
 def _serialize_reasons(reasons: list[str]) -> str | None:

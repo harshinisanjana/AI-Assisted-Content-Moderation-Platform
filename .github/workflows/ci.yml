@@ -48,8 +48,8 @@ jobs:
         
     - name: Check OpenAPI Spec Drift
       run: |
-        python dump_openapi.py
+        python scripts/dump_openapi.py
         if ! git diff --exit-code openapi.json; then
-          echo "::error::OpenAPI spec in repo (openapi.json) is outdated. Please run 'python dump_openapi.py' and commit."
+          echo "::error::OpenAPI spec in repo (openapi.json) is outdated. Please run 'python scripts/dump_openapi.py' and commit."
           exit 1
         fi

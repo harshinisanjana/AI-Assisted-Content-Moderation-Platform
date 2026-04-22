@@ -1,12 +1,11 @@
-
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.routers.posts import router as posts_router
-from app.routers.stats import router as stats_router
-from app.websocket_manager import manager
+from backend.app.routers.posts import router as posts_router
+from backend.app.routers.stats import router as stats_router
+from backend.app.websocket_manager import manager
 
 app = FastAPI(
     title="AI-Assisted Content Moderation & Publishing API",
@@ -55,4 +54,4 @@ def handle_sqlalchemy_error(_: Request, __: SQLAlchemyError) -> JSONResponse:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend.app.main:app", host="0.0.0.0", port=8000, reload=True)

@@ -20,15 +20,12 @@ Full-stack app for drafting short posts, submitting them to moderation, and publ
 
 ```
 .
-├── app/                    # Backend modules (routers, schemas, CRUD, moderation)
-├── alembic/                # Database migrations
+├── backend/                # FastAPI app and Alembic migrations
 ├── frontend/               # React app
+├── scripts/                # Setup, launch, SDK, and seed scripts
 ├── tests/                  # Backend tests
-├── main.py                 # FastAPI entry point
-├── setupdev.bat            # One-time local setup
-├── runapplication.bat      # Starts backend + frontend
-├── dump_openapi.py         # Dumps OpenAPI schema to openapi.json
-└── generate_sdk.bat        # Regenerates Python SDK
+├── openapi.json            # Generated OpenAPI snapshot
+└── requirements.txt        # Backend dependencies
 ```
 
 ## Quick Start (Windows)
@@ -36,7 +33,7 @@ Full-stack app for drafting short posts, submitting them to moderation, and publ
 ### 1) Set up dependencies
 
 ```bat
-setupdev.bat
+scripts\setupdev.bat
 ```
 
 What it does:
@@ -48,7 +45,7 @@ What it does:
 ### 2) Run the app
 
 ```bat
-runapplication.bat
+scripts\runapplication.bat
 ```
 
 This launches two terminals:
@@ -85,7 +82,7 @@ alembic upgrade head
 Run backend:
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Frontend
@@ -126,11 +123,11 @@ env\Scripts\python.exe -m pytest -q tests
 ### One-command path
 
 ```bat
-generate_sdk.bat
+scripts\generate_sdk.bat
 ```
 
 This script:
-1. Regenerates `openapi.json` from the FastAPI app via `dump_openapi.py`
+1. Regenerates `openapi.json` from the FastAPI app via `scripts/dump_openapi.py`
 2. Runs OpenAPI Generator to output `moderation_sdk/`
 
 Equivalent manual command used by the project:
@@ -158,5 +155,5 @@ Extra checks also flag ALL-CAPS and excessive punctuation.
 - Browser warning about `cdn.tailwindcss.com should not be used in production`
   - Expected for this dev setup because Tailwind CDN is loaded in `frontend/index.html`.
 
-- `Backend virtual environment not found` when running `runapplication.bat`
-  - Run `setupdev.bat` first.
+- `Backend virtual environment not found` when running `scripts\runapplication.bat`
+  - Run `scripts\setupdev.bat` first.
