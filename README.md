@@ -1,16 +1,16 @@
 # AI-Assisted Content Moderation & Publishing Platform
 
-A full-stack content publishing platform where users create short blog posts as drafts, submit them for AI moderation review, and publish approved content.
+A full-stack content publishing platform where users create short blog posts, submit them for AI moderation review, and publish approved content. Features real-time WebSocket updates, multi-page routing, and advanced analytics.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Backend | FastAPI, SQLAlchemy, Alembic, SQLite |
-| Frontend | React (Vite), Axios, Chart.js, TailwindCSS (CDN) |
+| Frontend | React (Vite, React Router), Axios, Chart.js, TailwindCSS |
 | Real-time | WebSockets |
 | Tests | pytest, FastAPI TestClient |
-| SDK | OpenAPI Generator CLI (Python) |
+| CI/Automation | GitHub Actions, OpenAPI Generator CLI (Python SDK) |
 
 ## Project Structure
 
@@ -18,60 +18,45 @@ A full-stack content publishing platform where users create short blog posts as 
 .
 ├── app/
 │   ├── __init__.py
-│   ├── crud.py              # Database operations
-│   ├── database.py          # SQLAlchemy engine + session
-│   ├── moderation.py        # AI moderation rules
-│   ├── models.py            # SQLAlchemy ORM model
-│   ├── schemas.py           # Pydantic request/response schemas
-│   ├── websocket_manager.py # WebSocket connection manager
+│   ├── crud.py              # Database queries & transactions
+│   ├── database.py          # SQLAlchemy engine & session maker
+│   ├── moderation.py        # Configurable AI moderation rules
+│   ├── models.py            # SQLite ORM definitions
+│   ├── schemas.py           # Pydantic payloads
+│   ├── websocket_manager.py # Real-time event broker
 │   └── routers/
-│       ├── __init__.py
-│       ├── posts.py         # CRUD + review + publish endpoints
-│       └── stats.py         # Analytics endpoint
-├── alembic/                 # Database migrations
+│       ├── posts.py         # Posts API endpoints
+│       └── stats.py         # Analytics endpoints
+├── alembic/                 # Database migrations (timestamps & schema)
 ├── frontend/
 │   └── src/
-│       ├── api.js           # Axios API client
-│       ├── App.jsx          # Main layout + route-based pages
-│       ├── App.css          # Animations (toast, fade)
-│       ├── index.css        # Scrollbar styling
-│       ├── main.jsx         # React entry point
+│       ├── api.js           # Fetch/Axios integrations
+│       ├── App.jsx          # React state & Router logic
 │       ├── hooks/
 │       │   └── useWebSocket.js
-│       └── components/
-│           ├── Dashboard.jsx    # Metric cards + 3 charts
-│           ├── PostForm.jsx     # Draft creation form
-│           ├── PostList.jsx     # Posts list with filters
-│           ├── PostDetail.jsx   # Post detail + moderation feedback
-│           └── PublishedFeed.jsx # Read-only published feed
+│       └── components/      # UI pieces (Dashboard, Forms, Feed)
 ├── tests/
-│   ├── conftest.py          # Test fixtures
-│   └── test_posts_api.py    # 8 unit tests
-├── main.py                  # FastAPI app entry point
-├── requirements.txt
-├── seed_data.sql
-├── setupdev.bat
-├── runapplication.bat
-└── generate_sdk.bat
+│   └── test_posts_api.py    # Pytest endpoints logic
+├── moderation_sdk/          # Auto-generated API Client
+├── .github/workflows/       # CI pipelines
+├── main.py                  # FastAPI Application wrapper
+├── dump_openapi.py          # Utility script for syncing schema outputs
+└── requirements.txt         # Backend Python packages
 ```
 
 ## Setup
 
-```bat
-setupdev.bat
-```
+1. **Initialize the workspace:**
+   ```bat
+   setupdev.bat
+   ```
+   *Creates a virtual environment, installs Python dependencies, runs Alembic migrations, and installs npm packages.*
 
-Creates virtual environment, installs dependencies, runs Alembic migration, installs frontend packages.
-
-## Run
-
-```bat
-runapplication.bat
-```
-
-Opens two terminal windows:
-- **Backend**: http://localhost:8000 (Swagger UI: http://localhost:8000/docs)
-- **Frontend**: http://localhost:5173
+2. **Run the Application:**
+   ```bat
+   runapplication.bat
+   ```
+   *Boots the FastAPI backend (`http://localhost:8000`) and the Vite React frontend (`http://localhost:5173`).*
 
 ## API Endpoints
 
@@ -79,56 +64,46 @@ Opens two terminal windows:
 |--------|------|-------------|
 | `POST` | `/posts/` | Create a new draft post |
 | `POST` | `/posts/{id}/submit/` | Submit a draft (or flagged post) for AI moderation review |
-| `GET` | `/posts/` | List posts (optional `?status=` filter) |
+| `GET` | `/posts/` | List posts. Supports `skip`, `limit`, and `status_filter` |
 | `GET` | `/posts/{id}` | Get a specific post |
-| `PATCH` | `/posts/{id}/publish/` | Publish an approved post |
-| `GET` | `/posts/stats` | Analytics data for dashboard |
-| `WS` | `/ws` | Real-time event stream |
+| `PATCH`| `/posts/{id}/publish/` | Publish an approved post |
+| `GET` | `/posts/stats` | Analytics data metrics |
+| `WS` | `/ws` | Real-time event stream for platform statuses |
 | `GET` | `/health` | Health check |
 
-## Post Lifecycle
+## Moderation Rules (Configurable)
 
-```
-draft → submit → approved → publish → published
-               → flagged (resubmit allowed)
-```
+Moderation limits are completely driven by Environment Variables (with fallback defaults).
 
-## Moderation Rules
+| Environment Variable | Default Value | Description |
+|----------------------|---------------|-------------|
+| `MIN_CONTENT_LENGTH` | `50` | Minimum post length |
+| `MAX_CONTENT_LENGTH` | `2000` | Maximum post length |
+| `BANNED_WORDS` | `damn, dumb, idiot, moron, stupid, shit` | Triggers a flagged state |
+| `AGGRESSIVE_KEYWORDS`| `hate, kill, destroy, loser, pathetic` | Triggers aggressive tone flag |
 
-| Rule | Detail |
-|------|--------|
-| Banned words | `damn`, `dumb`, `idiot`, `moron`, `stupid`, `shit` |
-| Content length | 50–2000 characters |
-| ALL-CAPS | Flagged as aggressive tone |
-| Excessive punctuation | `!!!` or 4+ exclamation marks |
-| Aggressive keywords | `hate`, `kill`, `destroy`, `loser`, `pathetic` |
+*Note: ALL-CAPS text and excessive punctuation (`!!!`) also autonomously trigger tone moderation.*
 
-**Business rules:**
-- Only `approved` posts can be published
-- Published posts are immutable (read-only)
-- Flagged posts show clear reasons and can be resubmitted
+## Testing & CI
 
-## Tests
-
+**Local Testing:**
 ```powershell
 env\Scripts\activate
-pytest -v
+python -m pytest tests/
 ```
 
-```
-8 passed
-```
+**Continuous Integration:**
+The `.github/workflows/ci.yml` matrix automatically tests Python packages, executes `pytest`, bundles the React frontend, and ensures the repo's `openapi.json` has not suffered any uncommitted schema drift.
 
-## Generate SDK
+## SDK Generation
 
-With the backend running:
+The `openapi.json` is exported via `dump_openapi.py` so the backend does not actively need to be running to mutate its shape. To generate the Python SDK:
 
 ```bat
 generate_sdk.bat
 ```
 
-Usage after generation:
-
+**Usage:**
 ```python
 from moderation_sdk.api.posts_api import PostsApi
 from moderation_sdk import ApiClient
@@ -136,9 +111,3 @@ from moderation_sdk import ApiClient
 client = ApiClient()
 api = PostsApi(client)
 ```
-
-## Bonus Features
-
-- **Real-time updates**: WebSocket pushes events on create/submit/publish; frontend shows toast notifications and auto-refreshes
-- **Analytics dashboard**: Doughnut chart (status distribution), line chart (30-day timeline), horizontal bar chart (top moderation flags), metric cards (total posts, approval rate, flag rate)
-- **Obsidian Analytics UI**: Dark theme with Material Design 3 color tokens, Plus Jakarta Sans + Inter typography, glassmorphic panels
