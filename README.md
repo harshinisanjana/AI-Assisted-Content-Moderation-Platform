@@ -19,11 +19,39 @@ Full-stack assessment project for drafting short posts, submitting them to moder
 
 ### Screenshots
 
+<<<<<<< HEAD
 ![Analytics Dashboard](media/dashboard.png)(media/dashboard.png)
 ![Create & Review Workspace](media/create_draft.png)
 ![Published Post Detail (Read-Only)](media/legal_post.png)
 ![Flagged Post with Moderation Feedback](media/flagged_post.png)
 ![Published Blog Feed](media/published.png)
+=======
+**1) Analytics Dashboard Overview**
+
+![Analytics Dashboard Overview](media/dashboard.png)
+
+
+![Analytics Dashboard Overview - Breakdown View](media/dashboard2.png)
+
+**2) Create & Review Workspace**
+
+![Create & Review Workspace](media/create_draft.png)
+
+**3) Flagged Post with Moderation Feedback**
+
+![Flagged Post with Moderation Feedback](media/flagged_post.png)
+
+**4) Published Post Detail (Read-Only)**
+
+![Published Post Detail (Read-Only)](media/legal_post.png)
+
+**5) Published Blog Feed**
+
+![Published Blog Feed](media/published.png)
+
+**6) API Documentation (Swagger UI)**
+
+>>>>>>> 469102e (added screenshots)
 ![API Documentation (Swagger UI)](media/swagger_ui.png)
 
 ## Tech Stack
