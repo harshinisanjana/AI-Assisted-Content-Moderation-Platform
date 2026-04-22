@@ -1,113 +1,162 @@
 # AI-Assisted Content Moderation & Publishing Platform
 
-A full-stack content publishing platform where users create short blog posts, submit them for AI moderation review, and publish approved content. Features real-time WebSocket updates, multi-page routing, and advanced analytics.
+Full-stack app for drafting short posts, submitting them to moderation, and publishing approved content.
 
-## Tech Stack
+## Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | FastAPI, SQLAlchemy, Alembic, SQLite |
-| Frontend | React (Vite, React Router), Axios, Chart.js, TailwindCSS |
-| Real-time | WebSockets |
-| Tests | pytest, FastAPI TestClient |
-| CI/Automation | GitHub Actions, OpenAPI Generator CLI (Python SDK) |
+- Backend: FastAPI, SQLAlchemy, Alembic, SQLite
+- Frontend: React + Vite, React Router, Axios, Chart.js, Tailwind utilities
+- Real-time: WebSockets
+- Tests: pytest + FastAPI TestClient
+- SDK: OpenAPI Generator (Python client)
 
-## Project Structure
+## Prerequisites
+
+- Python 3.11+
+- Node.js 18+ and npm
+- Windows PowerShell or Command Prompt (for `.bat` scripts)
+
+## Project Layout
 
 ```
 .
-├── app/
-│   ├── __init__.py
-│   ├── crud.py              # Database queries & transactions
-│   ├── database.py          # SQLAlchemy engine & session maker
-│   ├── moderation.py        # Configurable AI moderation rules
-│   ├── models.py            # SQLite ORM definitions
-│   ├── schemas.py           # Pydantic payloads
-│   ├── websocket_manager.py # Real-time event broker
-│   └── routers/
-│       ├── posts.py         # Posts API endpoints
-│       └── stats.py         # Analytics endpoints
-├── alembic/                 # Database migrations (timestamps & schema)
-├── frontend/
-│   └── src/
-│       ├── api.js           # Fetch/Axios integrations
-│       ├── App.jsx          # React state & Router logic
-│       ├── hooks/
-│       │   └── useWebSocket.js
-│       └── components/      # UI pieces (Dashboard, Forms, Feed)
-├── tests/
-│   └── test_posts_api.py    # Pytest endpoints logic
-├── moderation_sdk/          # Auto-generated API Client
-├── .github/workflows/       # CI pipelines
-├── main.py                  # FastAPI Application wrapper
-├── dump_openapi.py          # Utility script for syncing schema outputs
-└── requirements.txt         # Backend Python packages
+├── app/                    # Backend modules (routers, schemas, CRUD, moderation)
+├── alembic/                # Database migrations
+├── frontend/               # React app
+├── tests/                  # Backend tests
+├── main.py                 # FastAPI entry point
+├── setupdev.bat            # One-time local setup
+├── runapplication.bat      # Starts backend + frontend
+├── dump_openapi.py         # Dumps OpenAPI schema to openapi.json
+└── generate_sdk.bat        # Regenerates Python SDK
 ```
 
-## Setup
+## Quick Start (Windows)
 
-1. **Initialize the workspace:**
-   ```bat
-   setupdev.bat
-   ```
-   *Creates a virtual environment, installs Python dependencies, runs Alembic migrations, and installs npm packages.*
+### 1) Set up dependencies
 
-2. **Run the Application:**
-   ```bat
-   runapplication.bat
-   ```
-   *Boots the FastAPI backend (`http://localhost:8000`) and the Vite React frontend (`http://localhost:5173`).*
+```bat
+setupdev.bat
+```
 
-## API Endpoints
+What it does:
+- Creates virtual environment folder `env` (if missing)
+- Installs Python dependencies from `requirements.txt`
+- Runs `alembic upgrade head`
+- Installs frontend dependencies in `frontend/`
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/posts/` | Create a new draft post |
-| `POST` | `/posts/{id}/submit/` | Submit a draft (or flagged post) for AI moderation review |
-| `GET` | `/posts/` | List posts. Supports `skip`, `limit`, and `status_filter` |
-| `GET` | `/posts/{id}` | Get a specific post |
-| `PATCH`| `/posts/{id}/publish/` | Publish an approved post |
-| `GET` | `/posts/stats` | Analytics data metrics |
-| `WS` | `/ws` | Real-time event stream for platform statuses |
-| `GET` | `/health` | Health check |
+### 2) Run the app
 
-## Moderation Rules (Configurable)
+```bat
+runapplication.bat
+```
 
-Moderation limits are completely driven by Environment Variables (with fallback defaults).
+This launches two terminals:
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- Frontend UI: http://localhost:5173
 
-| Environment Variable | Default Value | Description |
-|----------------------|---------------|-------------|
-| `MIN_CONTENT_LENGTH` | `50` | Minimum post length |
-| `MAX_CONTENT_LENGTH` | `2000` | Maximum post length |
-| `BANNED_WORDS` | `damn, dumb, idiot, moron, stupid, shit` | Triggers a flagged state |
-| `AGGRESSIVE_KEYWORDS`| `hate, kill, destroy, loser, pathetic` | Triggers aggressive tone flag |
+## Manual Setup (Any OS)
 
-*Note: ALL-CAPS text and excessive punctuation (`!!!`) also autonomously trigger tone moderation.*
+### Backend
 
-## Testing & CI
+```bash
+python -m venv env
+```
 
-**Local Testing:**
+Activate venv:
+
 ```powershell
 env\Scripts\activate
-python -m pytest tests/
 ```
 
-**Continuous Integration:**
-The `.github/workflows/ci.yml` matrix automatically tests Python packages, executes `pytest`, bundles the React frontend, and ensures the repo's `openapi.json` has not suffered any uncommitted schema drift.
+```bash
+source env/bin/activate
+```
 
-## SDK Generation
+Install and migrate:
 
-The `openapi.json` is exported via `dump_openapi.py` so the backend does not actively need to be running to mutate its shape. To generate the Python SDK:
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+Run backend:
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Core API Endpoints
+
+- `POST /posts/` create draft
+- `POST /posts/{id}/submit/` run moderation (approved or flagged)
+- `PATCH /posts/{id}/publish/` publish approved post
+- `GET /posts/` list posts (`status`, `skip`, `limit`)
+- `GET /posts/{id}` get one post
+- `GET /posts/stats` dashboard metrics
+- `WS /ws` real-time events
+- `GET /health` health check
+
+## Run Tests
+
+With venv active:
+
+```bash
+pytest -q tests
+```
+
+Or directly via the venv Python executable on Windows:
+
+```powershell
+env\Scripts\python.exe -m pytest -q tests
+```
+
+## Generate Python SDK
+
+### One-command path
 
 ```bat
 generate_sdk.bat
 ```
 
-**Usage:**
-```python
-from moderation_sdk.api.posts_api import PostsApi
-from moderation_sdk import ApiClient
+This script:
+1. Regenerates `openapi.json` from the FastAPI app via `dump_openapi.py`
+2. Runs OpenAPI Generator to output `moderation_sdk/`
 
-client = ApiClient()
-api = PostsApi(client)
+Equivalent manual command used by the project:
+
+```bash
+openapi-generator-cli generate -i openapi.json -g python -o moderation_sdk --additional-properties=packageName=moderation_sdk
 ```
+
+## Environment-Based Moderation Rules
+
+The moderation engine reads these environment variables (with defaults):
+
+- `MIN_CONTENT_LENGTH` (default `50`)
+- `MAX_CONTENT_LENGTH` (default `2000`)
+- `BANNED_WORDS` (comma-separated)
+- `AGGRESSIVE_KEYWORDS` (comma-separated)
+
+Extra checks also flag ALL-CAPS and excessive punctuation.
+
+## Troubleshooting
+
+- Browser warning: `WebSocket is closed before the connection is established`
+  - In development, React StrictMode can cause an extra mount/unmount cycle, which may show this warning once. If the backend log shows `/ws [accepted]`, the socket is working.
+
+- Browser warning about `cdn.tailwindcss.com should not be used in production`
+  - Expected for this dev setup because Tailwind CDN is loaded in `frontend/index.html`.
+
+- `Backend virtual environment not found` when running `runapplication.bat`
+  - Run `setupdev.bat` first.
