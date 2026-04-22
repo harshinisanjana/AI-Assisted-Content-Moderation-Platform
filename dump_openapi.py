@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from backend.app.main import app
