@@ -20,7 +20,7 @@ def get_post_stats(db: Session = Depends(get_db)) -> schemas.StatsResponse:
     """Return aggregated statistics for the analytics dashboard."""
     all_posts = db.query(models.Post).all()
 
-    # ── Status distribution ──────────────────────────────────────────
+    # ── Status distribution ───────────────────────
     status_counter: Counter[str] = Counter()
     for post in all_posts:
         status_counter[post.status] += 1
@@ -54,7 +54,6 @@ def get_post_stats(db: Session = Depends(get_db)) -> schemas.StatsResponse:
                 reasons = json.loads(post.flagged_reasons)
                 if isinstance(reasons, list):
                     for reason in reasons:
-                        # Normalize to first sentence for grouping
                         label = str(reason).split(".")[0].strip()
                         reason_counter[label] += 1
             except json.JSONDecodeError:

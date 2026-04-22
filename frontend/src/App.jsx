@@ -270,6 +270,7 @@ function App() {
                       statusFilter={statusFilter}
                       onFilterChange={setStatusFilter}
                       onView={setSelectedPostId}
+                      onSubmitForReview={handleSubmitForReview}
                       onPublish={handlePublish}
                       submitting={submitting}
                       onLoadMore={loadMorePosts}

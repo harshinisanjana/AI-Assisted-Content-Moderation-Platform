@@ -32,7 +32,7 @@ class ConnectionManager:
         for connection in self._active:
             try:
                 await connection.send_text(message)
-            except Exception:  # noqa: BLE001 – connection may have dropped
+            except Exception: 
                 dead.append(connection)
         for connection in dead:
             self.disconnect(connection)
@@ -42,5 +42,4 @@ class ConnectionManager:
         return len(self._active)
 
 
-# Singleton used across the application
 manager = ConnectionManager()
